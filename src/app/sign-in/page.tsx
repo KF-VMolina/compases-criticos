@@ -16,6 +16,8 @@ const handleSignIn = async () => {
         const user = userCredential.user
         console.log(user)
         router.push('/dashboard')
+        setEmail('')
+        setPassword('')
         }
     )
     .catch((error) => {
