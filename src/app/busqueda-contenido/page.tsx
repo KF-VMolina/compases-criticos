@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
@@ -153,7 +154,12 @@ const SearchContent = () => {
               >
                 <div>
                   <figure>
-                    <img src={album.images[1].url} alt={album.name} />
+                    <Image
+                      src={album.images[1].url}
+                      alt={album.name}
+                      width={300}
+                      height={300}
+                    />
                   </figure>
                   <div className="card-body">
                     <h2 className="card-title">

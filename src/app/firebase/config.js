@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 //import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -18,7 +19,8 @@ const firebaseConfig = {
 
 // For Server Side Rendering
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const storage = getStorage(app);
 
 const auth = getAuth(app);
 
-export { app, auth };
+export { app, auth, storage };

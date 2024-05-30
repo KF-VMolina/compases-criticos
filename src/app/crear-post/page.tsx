@@ -52,7 +52,7 @@ const CreateBlogPost = () => {
       .min(120, "El comentario debe tener al menos 120 caracteres"),
     rating: Yup.number()
       .required("Campo requerido")
-      .min(1, "Seleccionar una calificación entre 0.5 y 5")
+      .min(0.5, "Seleccionar una calificación entre 0.5 y 5")
       .max(5, "Seleccionar una calificación entre 0.5 y 5"),
   });
 
@@ -155,7 +155,7 @@ const CreateBlogPost = () => {
                     htmlFor="comment"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Comment
+                    Comentarios
                   </label>
                   <div className="flex justify-center">
                     <Field
@@ -164,7 +164,7 @@ const CreateBlogPost = () => {
                       name="comment"
                       className="mt-1 p-2 block w-full sm:w-3/4 md:w-3/4 lg:w-3/4 xl:w-2/4 border border-gray-300 rounded-md"
                       rows="8"
-                      placeholder="Escribe tu comentario"
+                      placeholder="Escribe tu comentario..."
                     />
                   </div>
 
@@ -187,6 +187,7 @@ const CreateBlogPost = () => {
                         sx={{
                           width: "100%",
                           display: "flex",
+                          flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
@@ -210,13 +211,13 @@ const CreateBlogPost = () => {
                           }}
                           emptyIcon={
                             <StarIcon
-                              style={{ opacity: 0.55 }}
-                              fontSize="inherit"
+                              style={{ opacity: 0.55, fontSize: "50px" }}
                             />
                           }
+                          icon={<StarIcon style={{ fontSize: "50px" }} />}
                         />
                         {field.value !== null && (
-                          <Box sx={{ ml: 2, whiteSpace: "nowrap" }}>
+                          <Box sx={{ mt: 2, whiteSpace: "nowrap" }}>
                             {labels[hover !== -1 ? hover : field.value]}
                           </Box>
                         )}
