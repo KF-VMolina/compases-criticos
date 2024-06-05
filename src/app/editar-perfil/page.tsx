@@ -3,10 +3,9 @@ import { auth } from "@/app/firebase/config";
 import React, { useEffect, useState } from "react";
 import { storage } from "@/app/firebase/config";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { set } from "firebase/database";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
-import { log } from "console";
+import { getCookie, setCookie } from "cookies-next";
 
 const EditarPerfil: React.FC = () => {
   const [user] = useAuthState(auth);
@@ -16,10 +15,15 @@ const EditarPerfil: React.FC = () => {
   const router = useRouter();
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [username, setUsername] = useState("");
-  const [theme, setTheme] = useState("light");
+  // get theme cookie and set theme
+  const [themeCookie, setThemeCookie] = useState(getCookie("theme"));
+  const [theme, setTheme] = useState(themeCookie || "light");
   const [password, setPassword] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  {
+    /* User validation */
+  }
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -45,6 +49,10 @@ const EditarPerfil: React.FC = () => {
     }
   }, [user, userSession]);
 
+  {
+    /* Page Functions */
+  }
+
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -64,6 +72,55 @@ const EditarPerfil: React.FC = () => {
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+
+  {
+    /* Theme Change */
+  }
+
+  const themeColorOptions = [
+    "light",
+    "dark",
+    "cupcake",
+    "bumblebee",
+    "emerald",
+    "corporate",
+    "synthwave",
+    "retro",
+    "cyberpunk",
+    "valentine",
+    "halloween",
+    "garden",
+    "forest",
+    "aqua",
+    "lofi",
+    "pastel",
+    "fantasy",
+    "wireframe",
+    "black",
+    "luxury",
+    "dracula",
+    "cmyk",
+    "autumn",
+    "business",
+    "acid",
+    "lemonade",
+    "night",
+    "coffee",
+    "winter",
+    "dim",
+    "nord",
+    "sunset",
+  ];
+  const changeUserTheme = (theme: string) => {
+    setTheme(theme);
+    setThemeCookie(theme);
+    console.log("Theme changed to", theme);
+  };
+
+  const confirmThemeChange = (theme: string) => {
+    setCookie("theme", theme);
+    console.log("Theme cookie set to", theme);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -103,7 +160,8 @@ const EditarPerfil: React.FC = () => {
   };
 
   return (
-    <div>
+    //change theme according to user preference
+    <div className="theme-change" data-theme={themeCookie}>
       <main className="container mx-auto p-4">
         {/* Edit profile settings Section */}
         <section className="py-20 w-96 md:w-1/2 lg:w-1/2 mx-auto">
@@ -176,14 +234,26 @@ const EditarPerfil: React.FC = () => {
                       name="theme"
                       className="select select-bordered w-full mt-2"
                       value={theme}
-                      onChange={handleThemeChange}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        changeUserTheme(e.target.value);
+                      }}
                     >
-                      <option value="light">Claro</option>
-                      <option value="dark">Oscuro</option>
-                      <option value="system">Sistema</option>
+                      {themeColorOptions.map((theme) => (
+                        <option key={theme} value={theme}>
+                          {theme}
+                        </option>
+                      ))}
                     </select>
                   </label>
-                  <button type="submit" className="btn btn-primary">
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      confirmThemeChange(theme);
+                    }}
+                  >
                     Actualizar Tema
                   </button>
                 </form>

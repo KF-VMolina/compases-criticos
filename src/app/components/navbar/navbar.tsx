@@ -1,11 +1,11 @@
 "use client";
 import { auth } from "@/app/firebase/config";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
-import { set } from "firebase/database";
 import Link from "next/link";
+import { getCookie } from "cookies-next";
 
 const Navbar = () => {
   const [user] = useAuthState(auth);
@@ -23,9 +23,15 @@ const Navbar = () => {
     userSession = window.sessionStorage.getItem("user");
   }
 
-  if (!user && !userSession) {
-    router.push("/sign-in");
-  }
+  const isSignInPage = usePathname() === "/sign-in";
+
+  useEffect(() => {
+    if (router) {
+      if (!isSignInPage && !user && !userSession) {
+        router.push("/sign-in");
+      }
+    }
+  }, [router, user, userSession, isSignInPage]);
 
   const handleSignInButton = () => {
     router.push("/sign-in");
@@ -46,9 +52,12 @@ const Navbar = () => {
     router.push("/");
   };
 
+  // get theme cookie and set theme
+  const themeCookie = getCookie("theme");
+
   return (
     <div>
-      <div className="navbar bg-base-100">
+      <div className="navbar">
         <div className="navbar-start">
           <div className="dropdown">
             {/** Mobile Navbar */}

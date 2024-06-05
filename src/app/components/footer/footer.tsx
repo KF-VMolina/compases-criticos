@@ -1,16 +1,20 @@
+import { getCookie } from "cookies-next";
 import React from "react";
+
+// get theme cookie and set theme
+const themeCookie = getCookie("theme");
 
 const Footer = () => {
   return (
-    <div>
-      <footer
-        className="bg-base-200 p-4 text-center"
-        style={{ position: "fixed", bottom: 0, width: "100%" }}
-      >
-        <p>
-          &copy; {new Date().getFullYear()} Compases Críticos. All rights
-          reserved.
-        </p>
+    <div className="theme-change" data-theme={themeCookie}>
+      <footer className="footer footer-center p-4">
+        <aside>
+          <p>
+            {" "}
+            &copy; {new Date().getFullYear()} Compases Críticos. All rights
+            reserved.
+          </p>
+        </aside>
       </footer>
     </div>
   );
