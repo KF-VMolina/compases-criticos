@@ -11,6 +11,7 @@ import {
   deleteCookie,
   hasCookie,
 } from "cookies-next";
+import { get } from "http";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET;
@@ -88,6 +89,41 @@ const SearchContent = () => {
       fetchAlbums();
     }
   }, [searchInput, accessToken]);
+
+  useEffect(() => {
+    const getAlbumSongs = async () => {
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/albums/${selectedAlbum.id}/tracks`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch album songs");
+        }
+
+        const data = await response.json();
+        console.log(data);
+        //set array of song names in cookie
+        setCookie(
+          "albumSongs",
+          data.items.map((item: any) => item.name)
+        );
+        console.log("cookie for songs:", getCookie("albumSongs"));
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (selectedAlbum.id && accessToken) {
+      getAlbumSongs();
+    }
+  }, [selectedAlbum, accessToken]);
 
   const handleCardSelection = (id: any) => {
     setSelectedCard(id);

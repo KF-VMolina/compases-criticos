@@ -68,7 +68,11 @@ const SignIn = () => {
                 placeholder="Email"
                 className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
               />
-              <ErrorMessage name="email" component="div" />
+              <ErrorMessage
+                name="email"
+                component="div"
+                className="text-red-500 text-sm"
+              />
 
               <Field
                 type="password"
@@ -76,7 +80,11 @@ const SignIn = () => {
                 placeholder="Password"
                 className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
               />
-              <ErrorMessage name="password" component="div" />
+              <ErrorMessage
+                name="password"
+                component="div"
+                className="text-red-500 text-sm"
+              />
 
               <button
                 type="submit"

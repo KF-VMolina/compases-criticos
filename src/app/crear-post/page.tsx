@@ -41,6 +41,7 @@ const CreateBlogPost = () => {
       albumCover: getCookie("albumCover"),
       albumSpotify: getCookie("albumSpotify"),
       albumTrackLength: getCookie("albumTrackLength"),
+      albumSongs: getCookie("albumSongs"),
     };
     setAlbumDetails(details);
     setLoading(false);
@@ -54,6 +55,9 @@ const CreateBlogPost = () => {
       .required("Campo requerido")
       .min(0.5, "Seleccionar una calificación entre 0.5 y 5")
       .max(5, "Seleccionar una calificación entre 0.5 y 5"),
+    topSongs: Yup.array()
+      .of(Yup.string().required("Campo requerido"))
+      .min(1, "Selecciona al menos una canción"),
   });
 
   const albumId = getCookie("albumID");
@@ -64,6 +68,10 @@ const CreateBlogPost = () => {
   const albumSpotify = getCookie("albumSpotify");
   const albumTrackLength = getCookie("albumTrackLength");
   const artistSpotify = getCookie("artistSpotify");
+  //convert to array
+  //const albumSongs = getCookie("albumSongs");
+  const albumSongs = JSON.parse(getCookie("albumSongs")?.toString() ?? "[]");
+  console.log("albumSongs", albumSongs);
 
   if (loading) {
     return (
@@ -141,7 +149,7 @@ const CreateBlogPost = () => {
               </div>
             </div>
             <Formik
-              initialValues={{ comment: "", rating: "" }}
+              initialValues={{ comment: "", rating: "", topSongs: [] }}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
                 // handle form submission here
@@ -170,6 +178,34 @@ const CreateBlogPost = () => {
 
                   <ErrorMessage
                     name="comment"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="topSongs"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Canciones Favoritas
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <ul className="list-disc list-inside">
+                      {(albumSongs || []).map((song: any) => (
+                        <li key={song.id} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id={`song-${song.id}`}
+                            name="favoriteSongs"
+                            value={song.id}
+                          />
+                          <label htmlFor={`song-${song.id}`}>{song}</label>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <ErrorMessage
+                    name="topSongs"
                     component="div"
                     className="text-red-500 text-sm"
                   />

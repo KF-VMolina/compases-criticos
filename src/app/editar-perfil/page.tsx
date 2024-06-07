@@ -6,6 +6,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
 import { getCookie, setCookie } from "cookies-next";
+import Image from "next/image";
 
 const EditarPerfil: React.FC = () => {
   const [user] = useAuthState(auth);
@@ -173,7 +174,23 @@ const EditarPerfil: React.FC = () => {
             <div className="card shadow-lg">
               <div className="card-body">
                 <h3 className="card-title justify-center">Foto de Perfil</h3>
-                <p>Actualiza tu foto de perfil</p>
+                <div className="flex flex-col items-center justify-center">
+                  <div
+                    role="button"
+                    className="btn btn-ghost btn-circle avatar flex justify-center items-center"
+                  >
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center">
+                      <Image
+                        alt="Tailwind CSS Navbar component"
+                        className="object-cover"
+                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+                        width={60}
+                        height={60}
+                      />
+                    </div>
+                  </div>
+                  {/* Your file select component goes here */}
+                </div>
                 <form onSubmit={handleSubmit}>
                   <label className="block mb-4">
                     <input

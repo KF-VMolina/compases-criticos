@@ -56,8 +56,8 @@ const Navbar = () => {
   const themeCookie = getCookie("theme");
 
   return (
-    <div>
-      <div className="navbar">
+    <div className="theme-change" data-theme={themeCookie}>
+      <div className="navbar bg-base-200">
         <div className="navbar-start">
           <div className="dropdown">
             {/** Mobile Navbar */}
