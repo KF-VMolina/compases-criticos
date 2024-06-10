@@ -110,6 +110,7 @@ const SearchContent = () => {
         const data = await response.json();
         console.log(data);
         //set array of song names in cookie
+        deleteCookie("albumSongs");
         setCookie(
           "albumSongs",
           data.items.map((item: any) => item.name)
@@ -132,6 +133,17 @@ const SearchContent = () => {
   const handleAlbumSelection = (album: any) => {
     setSelectedAlbum(album);
     // pass the selected album to the Post Creation page in a cookie
+
+    //delete all previous album cookies
+    deleteCookie("albumID");
+    deleteCookie("albumName");
+    deleteCookie("albumArtist");
+    deleteCookie("albumReleaseDate");
+    deleteCookie("albumCover");
+    deleteCookie("albumSpotify");
+    deleteCookie("albumTrackLength");
+    //deleteCookie("albumSongs");
+    deleteCookie("artistSpotify");
 
     setCookie("albumID", album.id);
     setCookie("albumName", album.name);

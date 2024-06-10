@@ -1,5 +1,5 @@
 "use client";
-import { getCookie, getCookies, hasCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 import { ErrorMessage, Field, Form, Formik, FieldProps } from "formik";
 import * as Yup from "yup";
 import Image from "next/image"; // Import the Image component from next/image
@@ -28,9 +28,8 @@ function getLabelText(value: number) {
 const CreateBlogPost = () => {
   const [loading, setLoading] = useState(true);
   const [albumDetails, setAlbumDetails] = useState({});
-  const [rating, setRating] = useState(0);
-  const [value, setValue] = useState<number | null>(2);
   const [hover, setHover] = useState(-1);
+  const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
 
   useEffect(() => {
     const details = {
@@ -68,9 +67,16 @@ const CreateBlogPost = () => {
   const albumSpotify = getCookie("albumSpotify");
   const albumTrackLength = getCookie("albumTrackLength");
   const artistSpotify = getCookie("artistSpotify");
-  //convert to array
-  //const albumSongs = getCookie("albumSongs");
-  const albumSongs = JSON.parse(getCookie("albumSongs")?.toString() ?? "[]");
+  //convert to array and remove square brackets and double quotes
+  //give the songs a key value pair for the checkbox
+  const albumSongs =
+    getCookie("albumSongs")
+      ?.split(",")
+      .map((song: any, index: number) => ({
+        id: index + 1, // Assign a unique number ID starting from 1
+        name: song.replace(/[\[\]"]/g, ""), // Remove square brackets and double quotes from song names
+      })) ?? [];
+
   console.log("albumSongs", albumSongs);
 
   if (loading) {
@@ -149,7 +155,11 @@ const CreateBlogPost = () => {
               </div>
             </div>
             <Formik
-              initialValues={{ comment: "", rating: "", topSongs: [] }}
+              initialValues={{
+                comment: "",
+                rating: "",
+                topSongs: [] as string[],
+              }}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
                 // handle form submission here
@@ -157,122 +167,145 @@ const CreateBlogPost = () => {
                 setSubmitting(false);
               }}
             >
-              <Form className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="comment"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Comentarios
-                  </label>
-                  <div className="flex justify-center">
-                    <Field
-                      as="textarea"
-                      id="comment"
+              {({ setFieldValue, values }) => (
+                <Form className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="comment"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Comentarios
+                    </label>
+                    <div className="flex justify-center">
+                      <Field
+                        as="textarea"
+                        id="comment"
+                        name="comment"
+                        className="mt-1 p-2 block w-full sm:w-3/4 md:w-3/4 lg:w-3/4 xl:w-2/4 border border-gray-300 rounded-md"
+                        rows="8"
+                        placeholder="Escribe tu comentario..."
+                      />
+                    </div>
+
+                    <ErrorMessage
                       name="comment"
-                      className="mt-1 p-2 block w-full sm:w-3/4 md:w-3/4 lg:w-3/4 xl:w-2/4 border border-gray-300 rounded-md"
-                      rows="8"
-                      placeholder="Escribe tu comentario..."
+                      component="div"
+                      className="text-red-500 text-sm"
                     />
                   </div>
-
-                  <ErrorMessage
-                    name="comment"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="topSongs"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Canciones Favoritas
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    <ul className="list-disc list-inside">
-                      {(albumSongs || []).map((song: any) => (
-                        <li key={song.id} className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            id={`song-${song.id}`}
-                            name="favoriteSongs"
-                            value={song.id}
-                          />
-                          <label htmlFor={`song-${song.id}`}>{song}</label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <ErrorMessage
-                    name="topSongs"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="rating"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Rating
-                  </label>
-                  <Field name="rating">
-                    {({ field }: FieldProps<any>) => (
-                      <Box
-                        sx={{
-                          width: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Rating
-                          name="hover-feedback"
-                          id="rating"
-                          value={field.value}
-                          defaultValue={2.5}
-                          precision={0.5}
-                          getLabelText={getLabelText}
-                          onChange={(event, newValue) => {
-                            if (newValue !== null) {
-                              field.onChange({
-                                target: { name: "rating", value: newValue },
-                              });
-                            }
-                          }}
-                          onChangeActive={(event, newHover) => {
-                            setHover(newHover);
-                          }}
-                          emptyIcon={
-                            <StarIcon
-                              style={{ opacity: 0.55, fontSize: "50px" }}
-                            />
-                          }
-                          icon={<StarIcon style={{ fontSize: "50px" }} />}
-                        />
-                        {field.value !== null && (
-                          <Box sx={{ mt: 2, whiteSpace: "nowrap" }}>
-                            {labels[hover !== -1 ? hover : field.value]}
-                          </Box>
+                  <div>
+                    <label
+                      htmlFor="topSongs"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Canciones Favoritas
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      <ul className="list-disc list-inside">
+                        {albumSongs.map(
+                          (song: { id: number; name: string }) => (
+                            <li
+                              key={song.id}
+                              className="flex items-center gap-2"
+                            >
+                              <input
+                                type="checkbox"
+                                id={`song-${song.id}`}
+                                name="topSongs"
+                                value={song.name}
+                                checked={values.topSongs.includes(
+                                  song.name.toString()
+                                )} // Ensure checkbox reflects Formik's state
+                                onChange={() => {
+                                  const songName = song.name.toString();
+                                  const newSelection = values.topSongs.includes(
+                                    songName
+                                  )
+                                    ? values.topSongs.filter(
+                                        (name) => name !== songName
+                                      )
+                                    : [...values.topSongs, songName];
+                                  setFieldValue("topSongs", newSelection); // Update Formik's state
+                                }}
+                              />
+                              <label htmlFor={`song-${song.id}`}>
+                                {song.name}
+                              </label>
+                            </li>
+                          )
                         )}
-                      </Box>
-                    )}
-                  </Field>
-                  <ErrorMessage
-                    name="rating"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-                >
-                  Terminar
-                </button>
-              </Form>
+                      </ul>
+                    </div>
+                    <ErrorMessage
+                      name="topSongs"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="rating"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Rating
+                    </label>
+                    <Field name="rating">
+                      {({ field }: FieldProps<any>) => (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Rating
+                            name="hover-feedback"
+                            id="rating"
+                            value={field.value}
+                            defaultValue={2.5}
+                            precision={0.5}
+                            getLabelText={getLabelText}
+                            onChange={(event, newValue) => {
+                              if (newValue !== null) {
+                                field.onChange({
+                                  target: { name: "rating", value: newValue },
+                                });
+                              }
+                            }}
+                            onChangeActive={(event, newHover) => {
+                              setHover(newHover);
+                            }}
+                            emptyIcon={
+                              <StarIcon
+                                style={{ opacity: 0.55, fontSize: "50px" }}
+                              />
+                            }
+                            icon={<StarIcon style={{ fontSize: "50px" }} />}
+                          />
+                          {field.value !== null && (
+                            <Box sx={{ mt: 2, whiteSpace: "nowrap" }}>
+                              {labels[hover !== -1 ? hover : field.value]}
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+                    </Field>
+                    <ErrorMessage
+                      name="rating"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+                  >
+                    Terminar
+                  </button>
+                </Form>
+              )}
             </Formik>
           </div>
         </div>
