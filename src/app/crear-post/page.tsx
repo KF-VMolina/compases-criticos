@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Rating from "@mui/material/Rating";
 import Box from "@mui/material/Box";
 import StarIcon from "@mui/icons-material/Star";
+import Swal from "sweetalert2";
 
 const labels: { [index: string]: string } = {
   0.5: "Inescuchable",
@@ -50,13 +51,6 @@ const CreateBlogPost = () => {
     comment: Yup.string()
       .required("Campo requerido")
       .min(120, "El comentario debe tener al menos 120 caracteres"),
-    rating: Yup.number()
-      .required("Campo requerido")
-      .min(0.5, "Seleccionar una calificación entre 0.5 y 5")
-      .max(5, "Seleccionar una calificación entre 0.5 y 5"),
-    topSongs: Yup.array()
-      .of(Yup.string().required("Campo requerido"))
-      .min(1, "Selecciona al menos una canción"),
   });
 
   const albumId = getCookie("albumID");
@@ -69,6 +63,8 @@ const CreateBlogPost = () => {
   const artistSpotify = getCookie("artistSpotify");
   //convert to array and remove square brackets and double quotes
   //give the songs a key value pair for the checkbox
+  {
+    /*
   const albumSongs =
     getCookie("albumSongs")
       ?.split(",")
@@ -78,6 +74,8 @@ const CreateBlogPost = () => {
       })) ?? [];
 
   console.log("albumSongs", albumSongs);
+  */
+  }
 
   if (loading) {
     return (
@@ -92,7 +90,7 @@ const CreateBlogPost = () => {
         <div className="hero-content flex-col">
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-8">
-              <span>Crear Reseña para </span>
+              <span>Crear Entrada de Blog para </span>
               <a
                 href={albumSpotify}
                 className="underline"
@@ -157,42 +155,61 @@ const CreateBlogPost = () => {
             <Formik
               initialValues={{
                 comment: "",
-                rating: "",
-                topSongs: [] as string[],
+                //rating: "",
+                //topSongs: [] as string[],
               }}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
                 // handle form submission here
-                console.log(values);
-                setSubmitting(false);
+                if (values.comment.length >= 120) {
+                  //ask user if they want to submit
+                  Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "Estás a punto de publicar tu comentario. ¿Deseas continuar?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Sí, publicar",
+                    cancelButtonText: "No, cancelar",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      Swal.fire(
+                        "Publicado",
+                        "Tu comentario ha sido publicado con éxito",
+                        "success"
+                      );
+                    }
+                    console.log(values);
+                    setSubmitting(false);
+                  });
+                }
               }}
             >
-              {({ setFieldValue, values }) => (
-                <Form className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="comment"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Comentarios
-                    </label>
-                    <div className="flex justify-center">
-                      <Field
-                        as="textarea"
-                        id="comment"
-                        name="comment"
-                        className="mt-1 p-2 block w-full sm:w-3/4 md:w-3/4 lg:w-3/4 xl:w-2/4 border border-gray-300 rounded-md"
-                        rows="8"
-                        placeholder="Escribe tu comentario..."
-                      />
-                    </div>
-
-                    <ErrorMessage
+              <Form className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="comment"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Resumen de este álbum
+                  </label>
+                  <div className="flex justify-center">
+                    <Field
+                      as="textarea"
+                      id="comment"
                       name="comment"
-                      component="div"
-                      className="text-red-500 text-sm"
+                      className="mt-1 p-2 block w-full sm:w-3/4 md:w-3/4 lg:w-3/4 xl:w-2/4 border border-gray-300 rounded-md"
+                      rows="8"
+                      placeholder="Escribe un resumen sobre este disco..."
                     />
                   </div>
+
+                  <ErrorMessage
+                    name="comment"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+                {/* Top Songs 
                   <div>
                     <label
                       htmlFor="topSongs"
@@ -242,6 +259,8 @@ const CreateBlogPost = () => {
                       className="text-red-500 text-sm"
                     />
                   </div>
+                  */}
+                {/* Rating 
                   <div>
                     <label
                       htmlFor="rating"
@@ -298,14 +317,14 @@ const CreateBlogPost = () => {
                       className="text-red-500 text-sm"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-                  >
-                    Terminar
-                  </button>
-                </Form>
-              )}
+                  */}
+                <button
+                  type="submit"
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+                >
+                  Terminar
+                </button>
+              </Form>
             </Formik>
           </div>
         </div>
