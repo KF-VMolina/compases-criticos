@@ -28,20 +28,39 @@ function getLabelText(value: number) {
 
 const CreateBlogPost = () => {
   const [loading, setLoading] = useState(true);
-  const [albumDetails, setAlbumDetails] = useState({});
+  const [albumDetails, setAlbumDetails] = useState<AlbumDetails>({
+    albumSpotify: "",
+    albumName: "",
+    albumArtist: "",
+    albumTrackLength: "",
+    albumSongs: "",
+    artistSpotify: "",
+  });
   const [hover, setHover] = useState(-1);
   const [selectedSongs, setSelectedSongs] = useState<string[]>([]);
 
+  interface AlbumDetails {
+    albumSpotify?: string;
+    albumName?: string;
+    albumArtist?: string;
+    albumCover?: string;
+    albumReleaseDate?: string;
+    albumTrackLength?: string;
+    albumSongs?: string;
+    artistSpotify?: string;
+  }
+
   useEffect(() => {
     const details = {
-      albumId: getCookie("albumID"),
-      albumName: getCookie("albumName"),
-      albumArtist: getCookie("albumArtist"),
-      albumReleaseDate: getCookie("albumReleaseDate"),
-      albumCover: getCookie("albumCover"),
-      albumSpotify: getCookie("albumSpotify"),
-      albumTrackLength: getCookie("albumTrackLength"),
-      albumSongs: getCookie("albumSongs"),
+      albumId: getCookie("albumID") ?? "", // Provide a default value of an empty string
+      albumName: getCookie("albumName") ?? "", // Provide a default value of an empty string
+      albumArtist: getCookie("albumArtist") || "", // Provide a default value of an empty string
+      albumReleaseDate: getCookie("albumReleaseDate") || "", // Provide a default value of an empty string
+      albumCover: getCookie("albumCover") || "", // Provide a default value of an empty string
+      albumSpotify: getCookie("albumSpotify") || "", // Provide a default value of an empty string
+      albumTrackLength: getCookie("albumTrackLength") || "", // Provide a default value of 0
+      artistSpotify: getCookie("artistSpotify") || "", // Provide a default value of an empty string
+      albumSongs: getCookie("albumSongs") || "", // Provide a default value of an empty string
     };
     setAlbumDetails(details);
     setLoading(false);
@@ -53,14 +72,6 @@ const CreateBlogPost = () => {
       .min(120, "El comentario debe tener al menos 120 caracteres"),
   });
 
-  const albumId = getCookie("albumID");
-  const albumName = getCookie("albumName");
-  const albumArtist = getCookie("albumArtist");
-  const albumReleaseDate = getCookie("albumReleaseDate");
-  const albumCover = getCookie("albumCover");
-  const albumSpotify = getCookie("albumSpotify");
-  const albumTrackLength = getCookie("albumTrackLength");
-  const artistSpotify = getCookie("artistSpotify");
   //convert to array and remove square brackets and double quotes
   //give the songs a key value pair for the checkbox
   {
@@ -92,45 +103,50 @@ const CreateBlogPost = () => {
             <h1 className="text-3xl font-bold mb-8">
               <span>Crear Entrada de Blog para </span>
               <a
-                href={albumSpotify}
+                href={albumDetails.albumSpotify}
                 className="underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {albumName}
+                {albumDetails.albumName}
               </a>
               <span> de </span>
               <a
-                href={artistSpotify}
+                href={albumDetails.artistSpotify}
                 className="underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {albumArtist}
+                {albumDetails.albumArtist}
               </a>
             </h1>
             <Image
-              src={albumCover?.toString() ?? ""}
+              src={albumDetails.albumCover?.toString() ?? ""}
               alt="Album Cover"
               className="mx-auto"
               width={300}
               height={300}
+              priority
             />{" "}
             {/* Stats Bar */}
             <div className="stats stats-vertical lg:stats-horizontal shadow m-8">
               <div className="stat">
                 <div className="stat-title">Año de lanzamiento</div>
                 <div className="stat-value">
-                  {new Date(albumReleaseDate ?? "").getFullYear()}
+                  {new Date(albumDetails.albumReleaseDate ?? "").getFullYear()}
                 </div>
                 <div className="stat-desc">
-                  {new Date(albumReleaseDate ?? "").toLocaleDateString("en-GB")}
+                  {new Date(
+                    albumDetails.albumReleaseDate ?? ""
+                  ).toLocaleDateString("en-GB")}
                 </div>
               </div>
 
               <div className="stat">
                 <div className="stat-title">Número de canciones</div>
-                <div className="stat-value">{albumTrackLength}</div>
+                <div className="stat-value">
+                  {albumDetails.albumTrackLength}
+                </div>
               </div>
 
               <div className="stat">
@@ -138,7 +154,7 @@ const CreateBlogPost = () => {
                 <div className="stat-actions">
                   <button
                     className="btn btn-sm"
-                    onClick={() => window.open(albumSpotify)}
+                    onClick={() => window.open(albumDetails.albumSpotify)}
                     color="transparent"
                   >
                     <Image
@@ -160,7 +176,7 @@ const CreateBlogPost = () => {
               }}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
-                // handle form submission here
+                // if comment is at least 120 characters, ask user if they want to submit
                 if (values.comment.length >= 120) {
                   //ask user if they want to submit
                   Swal.fire({
