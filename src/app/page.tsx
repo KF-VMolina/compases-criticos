@@ -2,7 +2,9 @@
 import { getCookie } from "cookies-next";
 import { collection, getDocs, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { db } from "@/app/firebase/config";
+import { set } from "firebase/database";
 
 const Home = () => {
   const [theme, setTheme] = useState("");
@@ -14,6 +16,7 @@ const Home = () => {
       albumArtist: string;
     }[]
   >([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const themeCookie = getCookie("theme");
@@ -44,6 +47,7 @@ const Home = () => {
         });
         setPosts(fetchedPosts);
         console.log("Posts fetched:", fetchedPosts);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching posts:", error);
         // Handle the error appropriately in your UI
@@ -52,6 +56,15 @@ const Home = () => {
 
     fetchPosts();
   }, []); // Empty dependency array means this effect runs once on mount
+
+  // Loading spinner
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="loading loading-bars loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="theme-change" data-theme={theme}>
@@ -75,7 +88,12 @@ const Home = () => {
                   className="card lg:card-side bg-base-100 shadow-xl"
                 >
                   <figure>
-                    <img src={post.albumCoverURL} alt="Post" />
+                    <Image
+                      src={post.albumCoverURL}
+                      alt="Post"
+                      width={300}
+                      height={300}
+                    />
                   </figure>
                   <div className="card-body">
                     <h2 className="card-title">{post.albumName}</h2>
